@@ -124,7 +124,7 @@ exports.pushMessage = function(message, touser, poster, callback) {
                             console.error('[offline][RPUSH] is false. err is ', err);
                             if (callback) callback(err);
                         }
-                        console.log('[offline][RPUSH] is success, result is ', res);
+                        console.log('[offline][RPUSH] is success, StackObj is ', StackObj);
                         if (callback) callback(null);
                     });
                 });

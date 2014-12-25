@@ -3,6 +3,7 @@ var PRedis = require('../conf/config').Server.PRedis;
 var redisPwd = require('../conf/config').redisPwd;
 var exec = require('child_process').exec;
 var hash = require('./hash/hash.js');
+var fs = require('fs');
 
 var PredisArr = [];
 
@@ -97,13 +98,20 @@ function MonitorPub(res, NodeInfo) {
         });
     }
 
-    exec(cmd, function(err, out, code) {
-        if (err) {
-            console.error('exec is falsed. err is ', code);
-            return false;
-        }
-        temp.onlineInfo = JSON.parse(out);
-    });
+    //Check that file exists
+    if(fs.existsSync(filename)){
+        //get the latest onlineInformation
+        exec(cmd, function(err, out, code) {
+            if (err) {
+                console.error('exec is falsed. err is ', code);
+                return false;
+            }
+            temp.onlineInfo = JSON.parse(out);
+        });
+    }else {
+        //the file is not exists
+        temp.onlineInfo = null;
+    }
 
 	setTimeout(function(){
         res.writeHead(200, {
