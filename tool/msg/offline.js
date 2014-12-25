@@ -202,7 +202,7 @@ exports.pushGroupMessage = function(message, touserArr, poster) {
             textMsg = message.text;
         } else if (message.image) {
             textMsg = '发来一张[图片]';
-        } else if (message.audio) {
+        } else if (message.type == 4) {
             textMsg = '发来一条[语音]';
         }
         text = username + ': ' + textMsg;
