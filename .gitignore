@@ -10,14 +10,8 @@ lib-cov
 
 pids
 results
-test
-stress-test
-view
-node_modules
-.idea
 
 npm-debug.log
-node_modules
 *.DS_Store
 /stress-test
 /test
@@ -25,3 +19,4 @@ node_modules
 /node_modules
 /.idea
 demo
+/.project
