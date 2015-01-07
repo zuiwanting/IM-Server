@@ -369,7 +369,7 @@ exports.getMsg = function(userid, callback) {
                     return false;
                 }
                 if (!res.length) {
-                    console.log('user' + userid + 'have not offline message.');
+                    console.log('user ' + userid + ' have not offline message.');
                     if (callback) callback([]);
                     return false;
                 }

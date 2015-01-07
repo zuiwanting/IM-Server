@@ -105,7 +105,7 @@ function messageSysGroup(req, res, json) {
     }
 
     json.order = 'SYS';
-    json.type = '1';
+    json.type = '1';//TODO 优化为messageType
 
     console.log('[notification][messageSysGroup] json is ', json);
     msgsend.dispatchGroup(json);
@@ -220,7 +220,7 @@ function person(req, res, json) {
                 client.sismember('online', json.touser, function(err, isOnline) {
                     json.touser = item.user;
                     json.messageId = item.messageId;
-                    if (!isOnline) {
+                    if (isOnline) {
                         console.log('person-->', json.touser, 'isOnline');
                         received.push(parseInt(json.touser));
                         client.publish(room, JSON.stringify(json));
