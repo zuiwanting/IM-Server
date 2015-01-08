@@ -1,29 +1,6 @@
 'use strict';
 
-var hash = require('../../tool/hash/hash.js');
 var msgsend = require('../../tool/msg/msgsend');
-
-exports.add = function() {};
-exports.remove = function() {};
-
-exports.change = function(req, res, group) {
-
-    group.order = 'SYS';
-    group.action = group.action || group.type || 'groupChange';
-    group.togroup = group.group;
-    delete group.group;
-    msgsend.dispatchGroup(group);
-
-    res.writeHead(200, {
-        'charset': 'UTF-8',
-        'Content-Type': 'application/json'
-    });
-    var endJson = {
-        'response': '200',
-        'message': '请求成功'
-    };
-    res.end(JSON.stringify(endJson));
-};
 
 exports.group = function(req, res, json) {
 

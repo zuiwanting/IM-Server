@@ -13,10 +13,6 @@ var conf = require('../../conf/config');
 var mg1 = conf.mongodb.mg1;
 var mg3 = conf.mongodb.mg3;
 
-/**
- *
- */
-
 function retJSON(req, res, JSON) {
     res.writeHead(200, {
         'charset': 'UTF-8',
@@ -30,6 +26,20 @@ function ret404(req, res, msg) {
         'Content-Type': 'application/json'
     });
     res.end('{"response" : "404","message":"' + msg + '""}');
+}
+
+function temp(toGroup, groupNames) {
+    var temp = [];
+    for (var i = 0, length = toGroup.length; i < length; i ++) {
+        temp[i] = {};
+        temp[i].togroup = toGroup[i];
+        temp[i].messageId = id.id();
+        temp[i].groupname = groupNames[toGroup[i]] || '';
+        temp[i].redisHost = hash.getHash('GNode', toGroup[i]);
+        temp[i].groupRedis = hash.getHash('GRedis', temp[i].redisHost.id.toString());
+        temp[i].room = 'Group.' + temp[i].redisHost.id;
+    }
+    return temp;
 }
 
 /**
@@ -70,10 +80,10 @@ function group(req, res, json) {
 
     console.log(json, toGroup);
 
-    async.eachSeries(toGroup, function(item, cb) {
-        json.groupname = json.groupNames[item] || '';
-        json.togroup = item;
-        msgsend.dispatchGroup(json, cb);
+    var temp = temp(toGroup, json.groupNames || {});
+
+    async.each(temp, function(item, cb) {
+        msgsend.dispatchGroup(item, json, cb);
     }, function(err) {
         if (err) {
             console.error('[dispatch server][group] is false. err is ', err);
@@ -108,7 +118,17 @@ function messageSysGroup(req, res, json) {
     json.type = '1';//TODO 优化为messageType
 
     console.log('[notification][messageSysGroup] json is ', json);
-    msgsend.dispatchGroup(json);
+
+    var temp = temp(json.togroup, json.groupname || {});
+
+    async.each(temp, function(item, cb) {
+        msgsend.dispatchGroup(item, json, cb);
+    }, function(err) {
+        if (err) {
+            console.error('[dispatch server][group] is false. err is ', err);
+        }
+        console.log('[notifications][group] is success.')
+    });
 
     var retjson = {
         'response': '200',
@@ -140,13 +160,15 @@ function shareGroup(req, res, json) {
     json.time = +new Date();
     json.poster = json.userid;
 
-    async.eachSeries(toGroup, function(item, cb) {
-        json.togroup = item;
-        msgsend.dispatchGroup(json, cb);
+    var temp = temp(toGroup, json.groupNames || {});
+
+    async.each(temp, function(item, cb) {
+        msgsend.dispatchGroup(item, json, cb);
     }, function(err) {
         if (err) {
             console.error('[dispatch server][group] is false. err is ', err);
         }
+        console.log('[notifications][shareGroup] is success.')
     });
 }
 
