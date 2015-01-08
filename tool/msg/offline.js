@@ -45,7 +45,7 @@ exports.pushMessage = function(message, touser, poster, callback) {
             //wiki http://10.21.118.240/wiki/doku.php?id=ybmp#群组请求
             text = message.hostname + '申请加入' + message.groupname;
         } else {
-            console.error('[pushMessage][sys] message.action is ', message.action);
+            console.log('[pushMessage][sys] message.action is ', message.action);
             return false;
         }
     } else if (!isNaN(poster)){
@@ -69,8 +69,13 @@ exports.pushMessage = function(message, touser, poster, callback) {
             textMsg = '发来一条[语音]';
         }
         text = username + ': ' + textMsg;
-    } else {
+    } else if (message.action == 'GMemberAdd' || message.action == 'GMemberRemove' ||
+        message.action == 'GCreaterChange'){
         //poster === undefined means message.action = GMemberAdd or GMemberRemove or GCreaterChange
+        console.log('[pushMessage] message.action is ', message.action);
+        return false;
+    } else {
+        //poster === undefined means unNormal
         console.error('[pushMessage] is false. message is ', message);
         return false;
     }
@@ -206,8 +211,13 @@ exports.pushGroupMessage = function(message, touserArr, poster) {
             textMsg = '发来一条[语音]';
         }
         text = username + ': ' + textMsg;
-    } else {
+    } else if (message.action == 'GMemberAdd' || message.action == 'GMemberRemove' ||
+        message.action == 'GCreaterChange'){
         //poster === undefined means message.action = GMemberAdd or GMemberRemove or GCreaterChange
+        console.log('[pushMessage] message.action is ', message.action);
+        return false;
+    } else {
+        //poster === undefined means unNormal
         console.error('[pushMessage] is false. message is ', message);
         return false;
     }
