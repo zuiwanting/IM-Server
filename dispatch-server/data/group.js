@@ -2,6 +2,25 @@
 
 var msgsend = require('../../tool/msg/msgsend');
 
+exports.change = function(req, res, group) {
+
+    group.order = 'SYS';
+    group.action = group.action || group.type || 'groupChange';
+    group.togroup = group.group;
+    delete group.group;
+    msgsend.dispatchGroup(group);
+
+    res.writeHead(200, {
+        'charset': 'UTF-8',
+        'Content-Type': 'application/json'
+    });
+    var endJson = {
+        'response': '200',
+        'message': '请求成功'
+    };
+    res.end(JSON.stringify(endJson));
+};
+
 exports.group = function(req, res, json) {
 
     if (!json.action) return403(req, res, 'action 不能为空');
@@ -29,7 +48,7 @@ exports.group = function(req, res, json) {
         }
         var userids = json.userids.split(',');
         for (var i = 0, len = userids.length; i < len; i++) {
-            msgsend.sys(userids[i], json);
+            //msgsend.sys(userids[i], json);
         }
         console.log(json.action, json.userids.toString());
         return200(req, res, '发送成功，用户id：' + json.userids.toString());

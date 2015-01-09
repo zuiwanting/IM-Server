@@ -111,7 +111,7 @@ exports.group = function(rec, socket) {
             } else {
                 cb(null, true);
             }
-        }, function (cb) {
+        }, function (res, cb) {
             isChat(cb);
         }
     ], function (err, isChat) {
@@ -142,8 +142,6 @@ exports.group = function(rec, socket) {
                         if (socket) socket.emit('ybmp', rec);
                         callback(null, false);
                     } else {
-                        rec.status = 200;
-                        if (socket) socket.emit('ybmp', rec);
                         callback(null, true);
                     }
                 });

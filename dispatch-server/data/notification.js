@@ -28,7 +28,7 @@ function ret404(req, res, msg) {
     res.end('{"response" : "404","message":"' + msg + '""}');
 }
 
-function temp(toGroup, groupNames) {
+function tool(toGroup, groupNames) {
     var temp = [];
     for (var i = 0, length = toGroup.length; i < length; i ++) {
         temp[i] = {};
@@ -80,7 +80,7 @@ function group(req, res, json) {
 
     console.log(json, toGroup);
 
-    var temp = temp(toGroup, json.groupNames || {});
+    var temp = tool(toGroup, json.groupNames || {});
 
     async.each(temp, function(item, cb) {
         msgsend.dispatchGroup(item, json, cb);
@@ -119,7 +119,7 @@ function messageSysGroup(req, res, json) {
 
     console.log('[notification][messageSysGroup] json is ', json);
 
-    var temp = temp(json.togroup, json.groupname || {});
+    var temp = tool(json.togroup, json.groupname || {});
 
     async.each(temp, function(item, cb) {
         msgsend.dispatchGroup(item, json, cb);
@@ -160,7 +160,7 @@ function shareGroup(req, res, json) {
     json.time = +new Date();
     json.poster = json.userid;
 
-    var temp = temp(toGroup, json.groupNames || {});
+    var temp = tool(toGroup, json.groupNames || {});
 
     async.each(temp, function(item, cb) {
         msgsend.dispatchGroup(item, json, cb);
