@@ -118,8 +118,8 @@ function messageSysGroup(req, res, json) {
     json.type = '1';//TODO 优化为messageType
 
     console.log('[notification][messageSysGroup] json is ', json);
-
-    var temp = tool(json.togroup, json.groupname || {});
+    var toGroup = json.togroup.split(',');
+    var temp = tool(toGroup, json.groupname || {});
 
     async.each(temp, function(item, cb) {
         msgsend.dispatchGroup(item, json, cb);

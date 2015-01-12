@@ -1,6 +1,9 @@
 'use strict';
 
+var hash = require('../../tool/hash/hash.js');
+var id = require('../../tool/id');
 var msgsend = require('../../tool/msg/msgsend');
+var async = require('async');
 
 exports.change = function(req, res, group) {
 
@@ -8,7 +11,29 @@ exports.change = function(req, res, group) {
     group.action = group.action || group.type || 'groupChange';
     group.togroup = group.group;
     delete group.group;
-    msgsend.dispatchGroup(group);
+
+    var toGroup = group.togroup.split(',');
+    var groupNames = group.groupname || {};
+
+    var temp = [];
+    for (var i = 0, length = toGroup.length; i < length; i ++) {
+        temp[i] = {};
+        temp[i].togroup = toGroup[i];
+        temp[i].messageId = id.id();
+        temp[i].groupname = groupNames[toGroup[i]] || '';
+        temp[i].redisHost = hash.getHash('GNode', toGroup[i]);
+        temp[i].groupRedis = hash.getHash('GRedis', temp[i].redisHost.id.toString());
+        temp[i].room = 'Group.' + temp[i].redisHost.id;
+    }
+
+    async.each(temp, function(item, cb) {
+        msgsend.dispatchGroup(item, group, cb);
+    }, function(err) {
+        if (err) {
+            console.error('[dispatch server][group] is false. err is ', err);
+        }
+        console.log('[notifications][group] is success.')
+    });
 
     res.writeHead(200, {
         'charset': 'UTF-8',

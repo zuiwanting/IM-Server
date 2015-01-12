@@ -267,15 +267,12 @@ exports.dispatchGroup = function(item, rec, callback) {
 
     async.parallel([
         function (cb) {
-            var groupRedis = item.groupRedis;
-            var room = item.room;
-
-            redisConnect.connect(groupRedis.port, groupRedis.ip, function(client) {
-                console.log('group ready', groupRedis.port, groupRedis.ip, room);
+            redisConnect.connect(item.groupRedis.port, item.groupRedis.ip, function(client) {
+                console.log('group ready', item.groupRedis.port, item.groupRedis.ip, item.room);
                 rec.togroup = item.togroup;
                 rec.messageId = item.messageId;
                 rec.groupname = item.groupname;
-                client.publish(room, JSON.stringify(rec));
+                client.publish(item.room, JSON.stringify(rec));
                 cb(null);
             });
         }, function (cb) {
