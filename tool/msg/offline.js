@@ -130,6 +130,7 @@ exports.pushMessage = function(message, touser, poster, callback) {
                             if (callback) callback(err);
                         }
                         console.log('[offline][RPUSH] is success, StackObj is ', StackObj);
+                        console.log('##################################P end time :', new Date());
                         if (callback) callback(null);
                     });
                 });
@@ -267,6 +268,7 @@ exports.pushGroupMessage = function(message, touserArr, poster) {
                     if (err) {
                         console.error('[offline][RPUSH] is false. err is ', err);
                     }
+                    console.log('##################################G end time :', new Date());
                     console.log('[offline][RPUSH] is success, result is ', res);
                 });
             });

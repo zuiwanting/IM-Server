@@ -50,11 +50,13 @@ router.post('/notification', function(req, res, json) {
             group.group(req, res, json);
         } else {
             //group message
+            console.log('##################################G start time :', new Date());
             notification.group(req, res, json);
         }
     } else if (json.noti_type == 'share_group') {
         notification.shareGroup(req, res, json);
     } else if (json.noti_type == 'person') {
+        console.log('##################################P start time :', new Date());
         notification.person(req, res, json);
     } else if (json.noti_type == 'friend') {
         friend.friend(req, res, json);
