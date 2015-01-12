@@ -28,7 +28,7 @@ function ret404(req, res, msg) {
     res.end('{"response" : "404","message":"' + msg + '""}');
 }
 
-function tool(toGroup, groupNames) {
+function until(toGroup, groupNames) {
     var temp = [];
     for (var i = 0, length = toGroup.length; i < length; i ++) {
         temp[i] = {};
@@ -80,14 +80,16 @@ function group(req, res, json) {
 
     console.log(json, toGroup);
 
-    var temp = tool(toGroup, json.groupNames || {});
+    var temp = until(toGroup, json.groupNames || {});
 
     async.each(temp, function(item, cb) {
         msgsend.dispatchGroup(item, json, cb);
     }, function(err) {
         if (err) {
             console.error('[dispatch server][group] is false. err is ', err);
+            temp = [];
         }
+        temp = [];
         console.log('[notifications][group] is success.')
     });
 }
@@ -119,14 +121,16 @@ function messageSysGroup(req, res, json) {
 
     console.log('[notification][messageSysGroup] json is ', json);
     var toGroup = json.togroup.split(',');
-    var temp = tool(toGroup, json.groupname || {});
+    var temp = until(toGroup, json.groupname || {});
 
     async.each(temp, function(item, cb) {
         msgsend.dispatchGroup(item, json, cb);
     }, function(err) {
         if (err) {
             console.error('[dispatch server][group] is false. err is ', err);
+            temp = [];
         }
+        temp = [];
         console.log('[notifications][group] is success.')
     });
 
@@ -160,14 +164,16 @@ function shareGroup(req, res, json) {
     json.time = +new Date();
     json.poster = json.userid;
 
-    var temp = tool(toGroup, json.groupNames || {});
+    var temp = until(toGroup, json.groupNames || {});
 
     async.each(temp, function(item, cb) {
         msgsend.dispatchGroup(item, json, cb);
     }, function(err) {
         if (err) {
             console.error('[dispatch server][group] is false. err is ', err);
+            temp = [];
         }
+        temp = [];
         console.log('[notifications][shareGroup] is success.')
     });
 }
@@ -212,6 +218,7 @@ function person(req, res, json) {
     }, function(err) {
         if (err) {
             console.error('[notification][person] async.eachSeries is false. err is ', err);
+            temp = [];
             return false;
         }
         temp = [];

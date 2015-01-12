@@ -1,8 +1,8 @@
 'use strict';
 
 var hash = require('../../tool/hash/hash.js');
-var id = require('../../tool/id');
 var msgsend = require('../../tool/msg/msgsend');
+var id = require('../../tool/id');
 var async = require('async');
 
 exports.change = function(req, res, group) {
