@@ -52,8 +52,9 @@ function MonitorSub(appInfo) {
 function MonitorPub(res, NodeInfo) {
     //Monitoring Communications (publish)
     var roomLocal = NodeInfo.ip  + ':' + NodeInfo.port;
-    var filename = NodeInfo.ip + '_' + NodeInfo.port + '_pn_' + new Date().toJSON().split('T')[0] + '.txt';
-    var cmd = "cd /usr/local/app/www/logs;sed -n '$p' " + filename;
+    var filename = '/usr/local/app/www/logs/' +
+        NodeInfo.ip + '_' + NodeInfo.port + '_pn_' + new Date().toJSON().split('T')[0] + '.txt';
+    var cmd = "sed -n '$p' " + filename;
     var ip, port;
     var temp = {
         'nodeToRedis': [],
