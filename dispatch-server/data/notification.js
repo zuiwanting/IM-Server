@@ -120,7 +120,9 @@ function messageSysGroup(req, res, json) {
     json.type = '1';//TODO 优化为messageType
 
     console.log('[notification][messageSysGroup] json is ', json);
+    
     var toGroup = json.togroup.split(',');
+    
     var temp = until(toGroup, json.groupname || {});
 
     async.each(temp, function(item, cb) {
@@ -284,7 +286,7 @@ function person(req, res, json) {
                     callback(null);
                     //success
                 });
-            }, {ip: mg1.ip, port: mg1.port, name: 'insert_msgSend_person'});
+            }, {ip: mg1.person.ip, port: mg1.person.port, name: 'insert_msgSend_person'});
         }
 
         function saveSta(callback) {

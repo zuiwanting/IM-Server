@@ -17,6 +17,7 @@ var disInfo = {
 
 //getNode(GET)
 router.get('/getNode', function(req, res, search) {
+
     var userid = search.userid;
 
     if (!userid) {

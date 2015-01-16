@@ -75,7 +75,7 @@ exports.sendToPerson = function(msg, touser, poster, socket) {
         mongoC.db(mg1.dbname).collection('Message').insert(msgData, function() {
             //success
         });
-    }, {ip: mg1.ip, port: mg1.port, name: 'insert_msgSend_Person'});
+    }, {ip: mg1.person.ip, port: mg1.person.port, name: 'insert_msgSend_Person'});
     //save msg status to redis
     msgSave.sta({
         'messageId': msg.messageId,
@@ -240,7 +240,7 @@ function sendGroupMessage(groupServer, rec, callback) {
             console.log('[msgsend][insert into Message] is success.');
             if (callback) callback();
         });
-    }, {ip: mg1.ip, port: mg1.port, name: 'insert_msgSend_Group'});
+    }, {ip: mg1.group.ip, port: mg1.group.port, name: 'insert_msgSend_Group'});
 }
 
 exports.dispatchGroup = function(item, rec, callback) {
@@ -293,7 +293,7 @@ exports.dispatchGroup = function(item, rec, callback) {
                     console.log('[msgsend][insert into Message] is success.');
                     cb(null);
                 });
-            }, {ip: mg1.ip, port: mg1.port, name: 'insert_msgSend_Group'});
+            }, {ip: mg1.group.ip, port: mg1.group.port, name: 'insert_msgSend_Group'});
         }
     ], function (err) {
         if (err) {
@@ -340,7 +340,7 @@ exports.sys = function(touser, msg) {
         mongoC.db(mg1.dbname).collection('Message').insert(msgData, function() {
             //success
         });
-    }, {ip: mg1.ip, port: mg1.port, name: 'insert_Message_sys'});
+    }, {ip: mg1.person.ip, port: mg1.person.port, name: 'insert_Message_sys'});
 
     //save msg status to redis
     msgSave.sta({
@@ -348,5 +348,52 @@ exports.sys = function(touser, msg) {
         'touser': touser,
         'poster': -999,
         'type': 2
+    });
+};
+
+exports.groupSys = function(touser, msg) {
+    if (!touser) {
+        console.error('touser is necessary');
+        return false;
+    }
+    msg.time = +new Date();
+    msg.order = 'SYS';
+    msg.messageId = id.id();
+    msg.touser = touser;
+    msg.poster = (msg.poster || 'SYS');
+    var redisHost = hash.getHash('PRedis', touser);
+    redisConnect.connect(redisHost.port, redisHost.ip, function(client) {
+        var room = 'Room.' + touser;
+
+        client.publish(room, JSON.stringify(msg));
+
+        client.sismember('online', touser, function(err, isOnline) {
+            console.log('sys--->', touser, 'online:', isOnline, 'msg:', msg);
+            if (!isOnline) {
+                offline.pushMessage(msg, touser, 'SYS');
+            }
+        });
+    });
+
+    var msgData = {
+        'type': 1,
+        'from': -999,
+        'to': parseInt(touser),
+        'content': msg,
+        'time': msg.time,
+        'messageId': msg.messageId
+    };
+    mongoConnect.connect(function(mongoC) {
+        mongoC.db(mg1.dbname).collection('Message').insert(msgData, function() {
+            //success
+        });
+    }, {ip: mg1.group.ip, port: mg1.group.port, name: 'insert_Message_sys'});
+
+    //save msg status to redis
+    msgSave.sta({
+        'messageId': msg.messageId,
+        'touser': touser,
+        'poster': -999,
+        'type': 1
     });
 };

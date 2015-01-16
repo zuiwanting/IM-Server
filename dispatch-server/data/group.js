@@ -73,7 +73,7 @@ exports.group = function(req, res, json) {
         }
         var userids = json.userids.split(',');
         for (var i = 0, len = userids.length; i < len; i++) {
-            //msgsend.sys(userids[i], json);
+            msgsend.groupSys(userids[i], json);
         }
         console.log(json.action, json.userids.toString());
         return200(req, res, '发送成功，用户id：' + json.userids.toString());

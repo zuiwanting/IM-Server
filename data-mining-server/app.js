@@ -1,4 +1,5 @@
 'use strict';
+
 var net = require('net');
 var async = require('async');
 var mongo = require('../connect/mongo');
@@ -7,90 +8,193 @@ var ObjectID = require('mongodb').ObjectID;
 var conf = require('../conf/config');
 var redisInfo = conf.sta.redis.cache;
 var mongodb = conf.mongodb;
-var time = new Date(2014, 10, 5);//month - 1
-
+var time = new Date(2015, 0, 16);//month - 1
 
 //connect to the redis and mongodb
 redis.connect(redisInfo.port, redisInfo.ip, function(client) {
     client.select('1', function(err) {
         if (err) console.error('redis connect false');
+
         console.log('LogServer connected to redis ' + redisInfo.ip + ' and select 1');
-        mongo.connect(function(mongoC) {
-            main(mongoC, client);
-        }, {ip : mongodb.mg1.ip, port : mongodb.mg1.port, name : 'read_Message'});
+
+        async.parallel([
+            function (cb) {
+                mongo.connect(function(mongoPersonMsgCon) {
+                    cb(null, mongoPersonMsgCon);
+                }, {ip : mongodb.mg1.person.ip, port : mongodb.mg1.person.port, name : 'read_Person_Message'});
+            }, function (cb) {
+                mongo.connect(function(mongoGroupMsgCon) {
+                    cb(null, mongoGroupMsgCon);
+                }, {ip : mongodb.mg1.group.ip, port : mongodb.mg1.group.port, name : 'read_Group_Message'});
+            }, function (cb) {
+                mongo.connect(function(mongoTalksCon) {
+                    cb(null, mongoTalksCon);
+                }, {ip : mongodb.mg3.ip, port : mongodb.mg3.port, name : 'read_Talks'});
+            }
+        ], function (err, res) {
+            main(res[0], res[1], res[2], client);
+        });
     });
 });
 
-function main(mongod, redis) {
-    async.waterfall([
-        function(cb) {
-            getLastLogId(redis,cb);
-        },function(lastId, cb) {
-            console.log('lastId ID', lastId);
-            getMessageRecord(mongod, lastId, cb);
+function main(personCon, groupCon, talksCon, redis) {
+    async.parallel([
+        function (cb) {
+            person(personCon, redis, cb)
+        }, function (cb) {
+            group(groupCon, redis, cb);
         }
-    ],function(err, result) {
+    ], function (err, res) {
         if (err) {
-            console.error('[ log - app][getMessageRecord] result error!');
+            console.error('[data-mining-server][main] paraller is false, err is ', err);
+            cb(err);
         }
+        var personMsgs, groupMsgs;
 
-        if (!result.length) {
+        personMsgs = res[0];
+        groupMsgs = res[1];
+
+        if (personMsgs.concat(groupMsgs).length === 0) {
             setTimeout(function() {
                 console.log('Loop');
-                main(mongod, redis);
+                main(personCon, groupCon, talksCon, redis);
             }, 1000);
         } else {
-            async.each(result, function (message, callback) {
-                choice(message, callback);
-            }, function(err) {
-                if (err) {
-                    console.error('[ log - app][choice] false, err is ', err);
-                }
-
-                redis.set('lastLogId', result[result.length - 1]._id, function(err) {
-                    if (err) {
-                        console.error('[app][setLaseLogId] set false!');
-                    } else {
-                        main(mongod, redis);
-                    }
-                });
-            });
+            sendMessage(personMsgs, personCon, groupMsgs, groupCon, talksCon, redis);
         }
+    })
+}
 
-        function choice(message, callback) {
-            if (message.type == 0) {
-                personMsg(message.content, function(data) {
-                    sendLog(data, callback);
-                });
-            } else if (message.type == 1) {
-                mongo.connect(function(mongoC) {
-                    groupMsg(mongoC, message.content, function(data) {
-                        sendLog(data, callback);
-                    });
-                }, {ip : mongodb.mg3.ip, port : mongodb.mg3.port, name : 'read_Talks'});
+function sendMessage(persons, personCon, groups, groupCon, talksCon, redis) {
+    async.waterfall([
+        function (cb) {
+            beforeSendMessage(persons, groups, cb);
+        }, function (res, cb) {
+            choiceSendMessage(res[0], res[1], talksCon, redis, cb);
+        }
+    ], function (err) {
+        if (err) {
+            console.error('[data-mining-server][main] waterfall is false, err is ', err);
+        }
+        main(personCon, groupCon, talksCon, redis);
+    })
+}
+
+function choiceSendMessage(personMsgs, groupMsgs, mongoTalksCon, redis, callback) {
+    console.log('send to D pang zi personMsgs.length is ', personMsgs.length, 'groupMsgs.length is ', groupMsgs.length);
+    async.parallel([
+        function (cb) {
+            if (personMsgs.length === 0) {
+                cb(null);
             } else {
-                console.log('type is ', message.type);
-                callback(null);
+                async.each(personMsgs, function (message, cb) {
+                    personMsg(message.content, function(data) {
+                        sendLog(data, cb);
+                    });
+                }, function (err) {
+                    if (err) cb(err);
+                    setLastLogId(redis, 'lastLogId0', personMsgs[personMsgs.length - 1]._id, cb);
+                });
+            }
+        }, function (cb) {
+            if (groupMsgs.length === 0) {
+                cb(null);
+            } else {
+                async.each(groupMsgs, function (message, cb) {
+                    groupMsg(mongoTalksCon, message.content, function(data) {
+                        sendLog(data, cb);
+                    });
+                }, function (err) {
+                    if (err) cb(err);
+                    setLastLogId(redis, 'lastLogId1', groupMsgs[groupMsgs.length - 1]._id, cb);
+                });
             }
         }
+    ], function (err) {
+        if (err) callback(err);
+        callback(null);
     });
 }
 
-//get last log id
-function getLastLogId(redis, callback) {
-    redis.get('lastLogId', function(err, res) {
-        if (err) {
-            console.log('[ log - app][getLastLogId] redis get false!');
-            callback(err);
-        } else {
-            callback(null, res);
+function beforeSendMessage(persons, groups, callback) {
+    async.parallel([
+        function (cb) {
+            filterData(persons, cb);
+        }, function (cb) {
+            filterData(groups, cb);
         }
+    ], function (err, res) {
+        if (err) callback(err);
+        callback(null, res);
+    });
+}
+
+function filterData(data, callback) {
+    async.filter(data, function (message, cb) {
+        cb(message.content.poster && !isNaN(message.content.poster));
+    }, function (res) {
+        callback(null, res);
+    })
+}
+
+function setLastLogId(redis, key, id, cb) {
+    redis.set(key, id, function(err) {
+        if (err) cb(err);
+        cb(null);
+    });
+}
+
+function person(mongoPersonMsgCon, redis, cb) {
+    async.waterfall([
+        function (cb) {
+            getLastLogId(0, redis, cb);
+        }, function (lastId, cb) {
+            getMessageRecord(mongoPersonMsgCon, lastId, cb);
+        }
+    ], function (err, res) {
+        if (err) cb(err);
+        cb(null, res);
+    })
+}
+
+function group(mongoGroupMsgCon, redis, cb) {
+    async.waterfall([
+        function (cb) {
+            getLastLogId(1, redis, cb);
+        }, function (lastId, cb) {
+            getMessageRecord(mongoGroupMsgCon, lastId, cb);
+        }
+    ], function (err, res) {
+        if (err) cb(err);
+        cb(null, res);
+    })
+}
+
+//get last log id
+function getLastLogId(type, redis, callback) {
+
+    var key = null;
+    if (type === 0) {
+        key = 'lastLogId0';
+    } else if (type === 1) {
+        key = 'lastLogId1';
+    } else {
+        console.error('[getLastLogId] someing wrong with type');
+    }
+
+    redis.get(key, function(err, res) {
+        if (err) {
+            console.error('[ log - app][getLastLogId] redis get false!');
+            callback(err);
+        }
+        callback(null, res);
     });
 }
 
 //get messgae from mongodb
 function getMessageRecord(mongoC, lastLogId, callback) {
     var query = {};
+
     if (lastLogId) {
         query = {
             _id: {
@@ -104,6 +208,7 @@ function getMessageRecord(mongoC, lastLogId, callback) {
             }
         };
     }
+
     mongoC.db(mongodb.mg1.dbname).collection('Message').find(query, {
         type: true,
         content: true,
@@ -141,7 +246,7 @@ function personMsg(msg, callback) {
 
 //deal with group message
 function groupMsg(mongo, msg, callback) {
-    var _id = parseInt(msg.togroup);
+    var _id = parseInt(msg.togroup || msg.groupid);
 
     mongo.db(mongodb.mg3.dbname).collection('Talks').find({
         '_id': _id

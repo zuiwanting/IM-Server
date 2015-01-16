@@ -1,7 +1,13 @@
 exports.mongodb = {
     mg1: {
-        port: 27017,
-        ip: '10.21.3.64',
+        person: {
+            port: 27017,
+            ip: '10.21.3.64'
+        },
+        group : {
+            port: 27019,
+            ip: '10.21.3.64'
+        },
         dbname: 'larvel'
     },
     mg2: {
@@ -59,16 +65,6 @@ exports.Server = {
         'pr1': {
             'ip': '10.21.168.217', //pushStack redis
             'port': '22121'
-        }
-    },
-    MRedis: {
-        'pr1': {
-            'ip': '10.21.3.59', //MsgSta redis(person)
-            'port': '6380'
-        },
-        'pr2': {
-            'ip': '10.21.3.59', //MsgSta redis(group)
-            'port': '6381'
         }
     },
     GRedis: {
