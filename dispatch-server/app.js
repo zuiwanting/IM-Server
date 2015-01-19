@@ -17,24 +17,25 @@ var disInfo = {
 
 //getNode(GET)
 router.get('/getNode', function(req, res, search) {
+
     var userid = search.userid;
-    if (userid) {
-        //if nodeJson == 0 means no node server is online
-        var nodeJson = hash.getHash('PNode', userid);
-        //TEMPLETE FIXED
-        if (/10\.21\.67\.\d{1,3}$/.test(nodeJson.ip)) {
-            nodeJson.ip = '112.65.235.55';
-            nodeJson.addr = nodeJson.ip + ':' + nodeJson.port;
-        }
-        var json = {
-            'response': '200',
-            'message': 'request success',
-            'data': nodeJson
-        };
-        retJSON(req, res, JSON.stringify(json));
-    } else {
+
+    if (!userid) {
         ret403(req, res, 'userid is wrong, more information : http://10.21.118.240/wiki/doku.php?id=node_dispatch#获取node服务器地址_getnode');
     }
+    //if nodeJson == 0 means no node server is online
+    var nodeJson = hash.getHash('PNode', userid);
+
+    nodeJson.ip = 'mobile.yiban.cn';
+    nodeJson.addr = nodeJson.ip + ':' + nodeJson.port;
+
+    var json = {
+        'response': '200',
+        'message': 'request success',
+        'data': nodeJson
+    };
+    retJSON(req, res, JSON.stringify(json));
+
 });
 
 //notification(POST)
@@ -50,11 +51,13 @@ router.post('/notification', function(req, res, json) {
             group.group(req, res, json);
         } else {
             //group message
+            console.log('##################################G start time :', new Date());
             notification.group(req, res, json);
         }
     } else if (json.noti_type == 'share_group') {
         notification.shareGroup(req, res, json);
     } else if (json.noti_type == 'person') {
+        console.log('##################################P start time :', new Date());
         notification.person(req, res, json);
     } else if (json.noti_type == 'friend') {
         friend.friend(req, res, json);

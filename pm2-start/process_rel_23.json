@@ -4,6 +4,8 @@
     "script"          : "../dispatch-server/app.js",
     "args"            : "['10.21.67.23', 4202]",
     "log_date_format" : "YYYY-MM-DD HH:mm:ss",
+    "error_file"      : "dispatchServer-4202-err.log",
+    "out_file"        : "dispatchServer-4202-out.log",
     "exec_mode"       : "fork_mode"
   }
 ]

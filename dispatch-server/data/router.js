@@ -20,9 +20,7 @@ function server(req, res) {
     }
 
     var ip = req.headers['x-forwarded-for'] ||
-        req.connection.remoteAddress ||
-        req.socket.remoteAddress ||
-        req.connection.socket.remoteAddress;
+        req.connection.remoteAddress || null;
 
     if (option.safe) {
         if (!/^10.21/.test(ip)) {

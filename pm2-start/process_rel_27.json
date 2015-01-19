@@ -4,6 +4,8 @@
     "script"          : "../node-server/app.js",
     "args"            : "['10.21.67.27', 4271]",
     "log_date_format" : "YYYY-MM-DD HH:mm:ss",
+    "error_file"      : "nodeServer-4271-err.log",
+    "out_file"        : "nodeServer-4271-out.log",
     "exec_mode"       : "fork_mode"
   },
   {
@@ -11,6 +13,8 @@
     "script"          : "../node-server/app.js",
     "args"            : "['10.21.67.27', 4272]",
     "log_date_format" : "YYYY-MM-DD HH:mm:ss",
+    "error_file"      : "nodeServer-4272-err.log",
+    "out_file"        : "nodeServer-4272-out.log",
     "exec_mode"       : "fork_mode"
   }
 ]

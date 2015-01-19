@@ -4,12 +4,16 @@
     "script"          : "../monitor-server/app.js",
     "args"            : "['10.21.67.24', 4202]",
     "log_date_format" : "YYYY-MM-DD HH:mm:ss",
+    "error_file"      : "monitorServer-4202-err.log",
+    "out_file"        : "monitorServer-4202-out.log",
     "exec_mode"       : "fork_mode"
   },
   {
     "name"            : "logsServer",
     "script"          : "../data-mining-server/app.js",
     "log_date_format" : "YYYY-MM-DD HH:mm:ss",
+    "error_file"      : "logsServer-err.log",
+    "out_file"        : "logsServer-out.log",
     "exec_mode"       : "fork_mode"
   }
 ]

@@ -3,6 +3,7 @@ var PRedis = require('../conf/config').Server.PRedis;
 var redisPwd = require('../conf/config').redisPwd;
 var exec = require('child_process').exec;
 var hash = require('./hash/hash.js');
+var fs = require('fs');
 
 var PredisArr = [];
 
@@ -51,8 +52,9 @@ function MonitorSub(appInfo) {
 function MonitorPub(res, NodeInfo) {
     //Monitoring Communications (publish)
     var roomLocal = NodeInfo.ip  + ':' + NodeInfo.port;
-    var filename = NodeInfo.ip + '_' + NodeInfo.port + '_pn_' + new Date().toJSON().split('T')[0] + '.txt';
-    var cmd = "cd /usr/local/app/www/logs;sed -n '$p' " + filename;
+    var filename = '/usr/local/app/www/logs/' +
+        NodeInfo.ip + '_' + NodeInfo.port + '_pn_' + new Date().toJSON().split('T')[0] + '.txt';
+    var cmd = "sed -n '$p' " + filename;
     var ip, port;
     var temp = {
         'nodeToRedis': [],
@@ -97,13 +99,20 @@ function MonitorPub(res, NodeInfo) {
         });
     }
 
-    exec(cmd, function(err, out, code) {
-        if (err) {
-            console.error('exec is falsed. err is ', code);
-            return false;
-        }
-        temp.onlineInfo = JSON.parse(out);
-    });
+    //Check that file exists
+    if(fs.existsSync(filename)){
+        //get the latest onlineInformation
+        exec(cmd, function(err, out, code) {
+            if (err) {
+                console.error('exec is falsed. err is ', code);
+                return false;
+            }
+            temp.onlineInfo = JSON.parse(out);
+        });
+    }else {
+        //the file is not exists
+        temp.onlineInfo = null;
+    }
 
 	setTimeout(function(){
         res.writeHead(200, {
