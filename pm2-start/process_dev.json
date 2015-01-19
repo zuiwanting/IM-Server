@@ -4,6 +4,8 @@
     "script"          : "../brain-server/app.js",
     "args"            : "['10.21.3.62', 4999]",
     "log_date_format" : "YYYY-MM-DD HH:mm:ss",
+    "error_file"      : "brainServer-4999-err.log",
+    "out_file"        : "brainServer-4999-out.log",
     "exec_mode"       : "fork_mode"
   },
   {
@@ -11,6 +13,8 @@
     "script"          : "../dispatch-server/app.js",
     "args"            : "['10.21.3.62', 4008]",
     "log_date_format" : "YYYY-MM-DD HH:mm:ss",
+    "error_file"      : "dispatchServer-4008-err.log",
+    "out_file"        : "dispatchServer-4008-out.log",
     "exec_mode"       : "fork_mode"
   },
   {
@@ -18,12 +22,16 @@
     "script"          : "../monitor-server/app.js",
     "args"            : "['10.21.3.62', 4202]",
     "log_date_format" : "YYYY-MM-DD HH:mm:ss",
+    "error_file"      : "monitorServer-4202-err.log",
+    "out_file"        : "monitorServer-4202-out.log",
     "exec_mode"       : "fork_mode"
   },
   {
     "name"            : "logsServer",
     "script"          : "../data-mining-server/app.js",
     "log_date_format" : "YYYY-MM-DD HH:mm:ss",
+    "error_file"      : "logsServer-err.log",
+    "out_file"        : "logsServer-out.log",
     "exec_mode"       : "fork_mode"
   },
   {
@@ -31,6 +39,8 @@
     "script"          : "../node-server/app.js",
     "args"            : "['10.21.3.62', 4001]",
     "log_date_format" : "YYYY-MM-DD HH:mm:ss",
+    "error_file"      : "nodeServer-4001-err.log",
+    "out_file"        : "nodeServer-4001-out.log",
     "exec_mode"       : "fork_mode"
   },
   {
@@ -38,6 +48,8 @@
     "script"          : "../group-server/app.js",
     "args"            : "['10.21.3.62', 4101]",
     "log_date_format" : "YYYY-MM-DD HH:mm:ss",
+    "error_file"      : "groupServer-4101-err.log",
+    "out_file"        : "groupServer-4101-out.log",
     "exec_mode"       : "fork_mode"
   }
 ]

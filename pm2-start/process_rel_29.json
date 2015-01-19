@@ -5,6 +5,8 @@
     "script"          : "../group-server/app.js",
     "args"            : "['10.21.67.29', 4102]",
     "log_date_format" : "YYYY-MM-DD HH:mm:ss",
+    "error_file"      : "groupServer-4102-err.log",
+    "out_file"        : "groupServer-4102-out.log",
     "exec_mode"       : "fork_mode"
   }
 ]

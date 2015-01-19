@@ -4,6 +4,8 @@
     "script"          : "../brain-server/app.js",
     "args"            : "['10.21.4.83', 4999]",
     "log_date_format" : "YYYY-MM-DD HH:mm:ss",
+    "error_file"      : "brainServer-4999-err.log",
+    "out_file"        : "brainServer-4999-out.log",
     "exec_mode"       : "fork_mode"
   },
   {
@@ -11,6 +13,8 @@
     "script"          : "../monitor-server/app.js",
     "args"            : "['10.21.4.83', 4202]",
     "log_date_format" : "YYYY-MM-DD HH:mm:ss",
+    "error_file"      : "monitorServer-4202-err.log",
+    "out_file"        : "monitorServer-4202-out.log",
     "exec_mode"       : "fork_mode"
   },
   {
@@ -18,6 +22,8 @@
     "script"          : "../group-server/app.js",
     "args"            : "['10.21.4.83', 4101]",
     "log_date_format" : "YYYY-MM-DD HH:mm:ss",
+    "error_file"      : "groupServer-4101-err.log",
+    "out_file"        : "groupServer-4101-out.log",
     "exec_mode"       : "fork_mode"
   }
 ]

@@ -4,6 +4,8 @@
     "script"          : "../brain-server/app.js",
     "args"            : "['10.21.67.20', 4999]",
     "log_date_format" : "YYYY-MM-DD HH:mm:ss",
+    "error_file"      : "brainServer-4999-err.log",
+    "out_file"        : "brainServer-4999-out.log",
     "exec_mode"       : "fork_mode"
   }
 ]
